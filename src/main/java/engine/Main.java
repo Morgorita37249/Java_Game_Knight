@@ -8,6 +8,7 @@ public class Main {
     {
         Game game = new Game();
         final Frame frame = new GraphicWindow();
+        game.newGame();
         frame.setVisible(true);
 
     }

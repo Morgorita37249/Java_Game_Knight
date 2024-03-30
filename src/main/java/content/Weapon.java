@@ -9,12 +9,17 @@ public class Weapon implements CellContents{
     //сделать каждое описание под описание конкретного оружия
     static String description = "Описание оружия";//todo: разные свойства для разных оружий
     private Location location = new Location(0,0);
+    private Coin weaponCoin = new Coin();
 
 
 
-
-
-    public int getWeaponHealth(){
+    public int getHealth(){
         return health;
+    }
+    public Location getLocation(){
+        return location;
+    }
+    public void setLocation(int x, int y){
+        this.location = new Location(x,y);
     }
 }

@@ -7,21 +7,47 @@ public class Game {
     //само поле игры
     private int [][] field = new int[sizeX][sizeY];
 
-    enum Movements{
+    enum Move{
         LEFT,
-        UP,
+        RIGHT,
         DOWN,
-        RIGHT
-    }
-
-
-    //метод должен перемещать по полю
-    public void move(Knight knight){
-
+        UP
 
     }
-    public void addCoins(){
 
+
+    //метод должен перемещать по полю любое создание
+    public void move(CellContents cellContent, Move move){
+        if (cellContent.getHealth()!=0){
+            int newX = cellContent.getLocation().x;
+            int newY = cellContent.getLocation().y;
+            switch (move){
+                case LEFT:
+                    newX = newX-1;
+                    cellContent.setLocation(newX,newY);
+                    break;
+                case RIGHT:
+                    newX = newX+1;
+                    cellContent.setLocation(newX,newY);
+                    break;
+                case DOWN:
+                    newY = newY-1;
+                    cellContent.setLocation(newX,newY);
+                    break;
+                case UP:
+                    newY = newY+1;
+                    cellContent.setLocation(newX,newY);
+                    break;
+            }
+        }
+    }
+
+    public void newGame(){
+        Knight knight = new Knight();
+        Coin coins = new Coin();//хочу тут сохранить монетки с цикла
+        while (!(knight.getHealth() == 0)){
+
+        }
     }
 
 }

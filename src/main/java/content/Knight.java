@@ -14,30 +14,33 @@ public class Knight implements CellContents{
 
     //снимает очки здоровья врагу,
     public void attackEnemy(Enemy enemy){
-        if (this.weapon.getWeaponHealth()!=0){
-            enemy.setEnemyHealth(enemy.getEnemyHealth() - this.weapon.getWeaponHealth());
+        if (this.weapon.getHealth()!=0){
+            enemy.setHealth(enemy.getHealth() - this.weapon.getHealth());
         }
     }
 
 
 
-    public int getPlayerHeath(){
+
+    public int getHealth(){
         return health;
     }
-    public int getPlayerCoins(){
+    public int getCoins(){
         return coins;
     }
-    public Weapon getPlayerWeapon(){
+    public Weapon getWeapon(){
         return weapon;
     }
 
-    public void setPlayerHeath(int newHealth){
+    public void setHealth(int newHealth){
         health =  newHealth;
     }
-    public void setPlayerCoins(int newCoins){
+    public void setCoins(int newCoins){
         coins = newCoins;
     }
-    public void setPlayerWeapon(Weapon newWeapon){
+    public void setWeapon(Weapon newWeapon){
         weapon = newWeapon;
     }
+    public void setLocation(int x, int y){location = new Location(x,y);}
+    public Location getLocation(){return location;}
 }
