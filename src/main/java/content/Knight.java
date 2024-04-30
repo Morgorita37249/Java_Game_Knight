@@ -13,13 +13,11 @@ public class Knight implements CellContents{
 
 
     //снимает очки здоровья врагу,
-    public void attackEnemy(Enemy enemy){
-        if (this.weapon.getHealth()!=0){
+    public void attackEnemy(Enemy enemy) {
+        if (this.weapon.getHealth() != 0) {
             enemy.setHealth(enemy.getHealth() - this.weapon.getHealth());
         }
     }
-
-
 
 
     public int getHealth(){
