@@ -1,17 +1,14 @@
 package engine;
 
 public class Location{
-    public int x = 0;
-    public int y = 0;
+    public int x;
+    public int y;
 
-    public Location(int x, int y){
-        this.x = check(x);
-        this.y = check(y);
+    public Location(int newx, int newy){
+       if (newx>=0 && newx<=2 && newy>=0 && newy<=2) {
+           this.x = newx;
+           this.y = newy;
+       }
     }
-    public int check(int locationValue){
-        if (locationValue<0 || locationValue>2){
-            // придумать маленькую реакцию на попытку выйти за границы поля
-        }
-        return locationValue;
-    }
+    //запрет на выход за пределы поля
 }

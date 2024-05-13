@@ -1,22 +1,14 @@
 package graphics;
+import engine.Game;
+import content.*;
 
-import content.CellContents;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 
 public class GameWindow extends Frame implements KeyListener{
-    private Image imageKnight;
-    private Image imageEnemy;
+
+    private Rectangle[][] rectangles = new Rectangle[3][3];
+    private Point[][] rectangleCorners = new Point[3][3]; // Массив углов верхних левых углов прямоугольников
 
     private boolean isLeft = false;
     private boolean isRight = false;
@@ -26,52 +18,69 @@ public class GameWindow extends Frame implements KeyListener{
     public GameWindow() {
         super("Game Window");
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension mySize = new Dimension(720, 810);
+        Dimension mySize = new Dimension(800, 900);
         setLocation((d.width - mySize.width) / 2, (d.height - mySize.height) / 2);
         setSize(mySize);
-        imageKnight = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
-        imageEnemy = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 setVisible(false);
                 dispose();
+                System.exit(0); // Добавляем завершение программы
             }
         });
         addKeyListener(this);
         setFocusable(true);
+
+    }
+    public Image currentImage(CellContents content){
+        if (content instanceof Coin){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/coin.png"));
+        }if (content instanceof Enemy){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
+        }if (content instanceof Knight){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
+        }if (content instanceof Weapon){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/weapon.png"));
+        }
+        return null;
     }
 
     @Override
     public void paint(Graphics g) {
-        int rows = 3;
-        int cols = 3;
-        int gap = 10;
-        int labelHeight = 30;
-        int availableHeight = 810 - labelHeight - gap;
+        super.paint(g);
 
-        int rectangleWidth = (720 - (cols + 1) * gap) / cols;
-        int rectangleHeight = (availableHeight - (rows + 1) * gap) / rows;
+        Dimension size = getSize();
+        int rectWidth = size.width / 3;
+        int rectHeight = size.height / 3;
 
+        // Рисуем красивое название игры
+        Font titleFont = new Font("Arial", Font.BOLD, 24);
+        g.setFont(titleFont);
+        FontMetrics metrics = g.getFontMetrics();
+        int titleWidth = metrics.stringWidth("GameKnight");
+        int titleX = (size.width - titleWidth) / 2;
+        int titleY = 50;
+        g.drawString("GameKnight", titleX, titleY);
 
-        g.setColor(Color.GRAY);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                int x = j * (rectangleWidth + gap) + gap;
-                int y = i * (rectangleHeight + gap) + gap + labelHeight + gap;
-                g.fillRect(x, y, rectangleWidth, rectangleHeight);
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                rectangles[row][col] = new Rectangle(col * rectWidth, row * rectHeight, rectWidth, rectHeight);
+                rectangleCorners[row][col] = new Point(rectangles[row][col].x,
+                        rectangles[row][col].y); // Угол верхнего левого угла прямоугольника
+                g.drawRect(rectangles[row][col].x, rectangles[row][col].y,
+                        rectangles[row][col].width, rectangles[row][col].height);
             }
         }
-
-        // Рисуем надпись
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Courier", Font.BOLD | Font.ITALIC, 20));
-        g.drawString("Game Knight", 720 / 2 - 50, gap + labelHeight + 10);
-        g.setColor(Color.BLACK);
-        if (imageKnight != null) {
-            g.drawImage(imageKnight, 260, 305, this); // Рисуем изображение с координатами (50, 250)
-            g.drawImage(imageEnemy, 495, 305, this);
+        for (int x=0;x<3;x++) {
+            for (int y = 0; y<3; y++) {
+                CellContents content = Game.whatMonsterOnField(x,y);
+                Image currentImage = currentImage(content);
+                Point point = rectangleCorners[x][y];
+                int xCoordinate = point.x;
+                int yCoordinate = point.y;
+                g.drawImage(currentImage, xCoordinate+30, yCoordinate+50, this);
+            }
         }
-
     }
 
     @Override
@@ -106,24 +115,24 @@ public class GameWindow extends Frame implements KeyListener{
             isRight = false;
         }
     }
-    public void updateCellContentLocation(CellContents content) {
-        int newX = content.getLocation().x;
-        int newY = content.getLocation().y;
+    public void updateKnightLocation(Knight knight) {
+        int newX = knight.getLocation().x;
+        int newY = knight.getLocation().y;
         if (isLeft) {
             newX = newX-1;
-            content.setLocation(newX,newY);
+            knight.setLocation(newX,newY);
         }
         if (isRight) {
             newX = newX+1;
-            content.setLocation(newX,newY);
+            knight.setLocation(newX,newY);
         }
         if (isUp) {
             newY = newY+1;
-            content.setLocation(newX,newY);
+            knight.setLocation(newX,newY);
         }
         if (isDown) {
             newY = newY - 1;
-            content.setLocation(newX, newY);
+            knight.setLocation(newX, newY);
         }
     }
 
