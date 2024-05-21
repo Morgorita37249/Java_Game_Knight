@@ -15,10 +15,12 @@ public class GameWindow extends Frame implements KeyListener{
     private boolean isUp = false;
     private boolean isDown = false;
 
+    private boolean isKeyPressed = false;
+
     public GameWindow() {
-        super("Game Window");
+        super("GameKnight");
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension mySize = new Dimension(800, 900);
+        Dimension mySize = new Dimension(800, 950);
         setLocation((d.width - mySize.width) / 2, (d.height - mySize.height) / 2);
         setSize(mySize);
         addWindowListener(new WindowAdapter() {
@@ -30,7 +32,7 @@ public class GameWindow extends Frame implements KeyListener{
         });
         addKeyListener(this);
         setFocusable(true);
-
+        requestFocusInWindow();
     }
     public Image currentImage(CellContents content){
         if (content instanceof Coin){
@@ -52,18 +54,20 @@ public class GameWindow extends Frame implements KeyListener{
         Dimension size = getSize();
         int rectWidth = size.width / 3;
         int rectHeight = size.height / 3;
-
-        // Рисуем красивое название игры
+        Color brown = new Color(44, 16, 0);
+        g.setColor(brown);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         g.setFont(titleFont);
         FontMetrics metrics = g.getFontMetrics();
-        int titleWidth = metrics.stringWidth("GameKnight");
-        int titleX = (size.width - titleWidth) / 2;
-        int titleY = 50;
-        g.drawString("GameKnight", titleX, titleY);
+        g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
 
-        for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 3; col++) {
+        Color yellow = new Color(143, 99, 7);
+        g.setColor(yellow);
+        int coinsWidth = metrics.stringWidth("Coins");
+        g.drawString("Coins ", 10, 50);
+
+        for (int col = 0; col < 3; col++) {
+            for (int row = 0; row < 3; row++)  {
                 rectangles[row][col] = new Rectangle(col * rectWidth, row * rectHeight, rectWidth, rectHeight);
                 rectangleCorners[row][col] = new Point(rectangles[row][col].x,
                         rectangles[row][col].y); // Угол верхнего левого угла прямоугольника
@@ -71,14 +75,32 @@ public class GameWindow extends Frame implements KeyListener{
                         rectangles[row][col].width, rectangles[row][col].height);
             }
         }
-        for (int x=0;x<3;x++) {
-            for (int y = 0; y<3; y++) {
+        Color pink = new Color(92, 13, 26);
+        Color grey = new Color(45, 45, 45);
+        for (int y = 0; y<3; y++) {
+            for (int x = 0; x < 3; x++) {
                 CellContents content = Game.whatMonsterOnField(x,y);
                 Image currentImage = currentImage(content);
-                Point point = rectangleCorners[x][y];
+                Point point = rectangleCorners[y][x];
                 int xCoordinate = point.x;
                 int yCoordinate = point.y;
-                g.drawImage(currentImage, xCoordinate+30, yCoordinate+50, this);
+                String health = String.valueOf(content.getHealth());
+                g.drawImage(currentImage, xCoordinate+30, yCoordinate+70, this);
+                if (content instanceof Knight){
+                    String coins = String.valueOf(((Knight) content).getWallet());
+                    g.drawString( coins, coinsWidth + 20, 50);
+                    if (((Knight) content).getWeapon()!=0){
+                        Image weaponImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightWEAPON.png"));
+                        g.drawImage(weaponImage, xCoordinate+30, yCoordinate+70, this);
+                        g.setColor(grey);
+                        String weapon = String.valueOf(((Knight) content).getWeapon());
+                        g.drawString( weapon,  xCoordinate+50, yCoordinate+100);
+                    }
+                }
+                g.setColor(pink);
+                g.drawString(health, xCoordinate+50, yCoordinate+80);
+                g.setColor(yellow);
+
             }
         }
     }
@@ -90,7 +112,7 @@ public class GameWindow extends Frame implements KeyListener{
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        System.out.println("Key pressed: " + KeyEvent.getKeyText(keyCode));
+        System.out.println("Key pressed: " + KeyEvent.getKeyText(keyCode));  // Вывод в консоль
         if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
             isUp = true;
         } else if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT) {
@@ -100,40 +122,50 @@ public class GameWindow extends Frame implements KeyListener{
         } else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
             isRight = true;
         }
+        isKeyPressed = true;  // Убедитесь, что флаг нажатия клавиши устанавливается
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-        int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
-            isUp = false;
-        } else if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT) {
-            isLeft = false;
-        } else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
-            isDown = false;
-        } else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
-            isRight = false;
-        }
-    }
+    public void keyReleased(KeyEvent e) {}
     public void updateKnightLocation(Knight knight) {
         int newX = knight.getLocation().x;
         int newY = knight.getLocation().y;
         if (isLeft) {
             newX = newX-1;
             knight.setLocation(newX,newY);
+            isLeft = false;
         }
         if (isRight) {
             newX = newX+1;
             knight.setLocation(newX,newY);
+            isRight = false;
         }
         if (isUp) {
             newY = newY+1;
             knight.setLocation(newX,newY);
+            isUp = false;
         }
         if (isDown) {
             newY = newY - 1;
             knight.setLocation(newX, newY);
+            isDown = false;
         }
+        isKeyPressed = false;
+    }
+
+    // указывает, что клавиша нажата
+    public void waitForKey() {
+        while (!isKeyPressed) {
+            try {
+                Thread.sleep(10); // Пауза в миллисекундах
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean isKeyPressed(){
+        return isKeyPressed;
     }
 
 }

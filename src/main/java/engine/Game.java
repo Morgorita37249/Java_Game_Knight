@@ -9,33 +9,51 @@ public class Game {
     //само поле игры
     private static CellContents [][] field = new CellContents[sizeX][sizeY];
 
-    private void setLocationOnField(CellContents content){
-        field[content.location.x][content.location.y]=content;
+    private void setLocationOnField(CellContents content) {
+        if (content.location.x >= 0 && content.location.x < sizeX &&
+                content.location.y >= 0 && content.location.y < sizeY) {
+            field[content.location.x][content.location.y] = content;
+        } else {
+            System.out.println("Error: Coordinates out of bounds!");
+        }
     }
-    public static CellContents whatMonsterOnField(int coordinateX, int coordinateY){
-        return field[coordinateX][coordinateY];
+    public static CellContents whatMonsterOnField(int coordinateX, int coordinateY) {
+        if (coordinateX >= 0 && coordinateX < sizeX &&
+                coordinateY >= 0 && coordinateY < sizeY) {
+            return field[coordinateX][coordinateY];
+        } else {
+            System.out.println("Error: Coordinates out of bounds!");
+            return null;
+        }
     }
-    private void contentSelectionAndSetOnField(int xCoordinate, int yCoordinate){
-        Random random = new Random();
-        int randomNumber = random.nextInt(3);
-        if (randomNumber==0){
-            Enemy enemy = new Enemy();
-            enemy.setLocation(xCoordinate,yCoordinate);
-            setLocationOnField(enemy);
-        }if (randomNumber==1){
-            Coin coin = new Coin();
-            coin.setLocation(xCoordinate,yCoordinate);
-            setLocationOnField(coin);
-        }if (randomNumber==2){
-            Weapon weapon = new Weapon();
-            weapon.setLocation(xCoordinate,yCoordinate);
-            setLocationOnField(weapon);
+    private void contentSelectionOnField(int xCoordinate, int yCoordinate){
+        try {
+            Random random = new Random();
+            int randomNumber = random.nextInt(3);
+            if (randomNumber == 0) {
+                Enemy enemy = new Enemy();
+                enemy.setLocation(xCoordinate, yCoordinate);
+                setLocationOnField(enemy);
+            } else if (randomNumber == 1) {
+                Coin coin = new Coin();
+                coin.setLocation(xCoordinate, yCoordinate);
+                setLocationOnField(coin);
+            } else if (randomNumber == 2) {
+                Weapon weapon = new Weapon();
+                weapon.setLocation(xCoordinate, yCoordinate);
+                setLocationOnField(weapon);
+            }
+        } catch (Exception e) {
+            System.out.println("Error during content selection and setting: " + e.getMessage());
         }
     }
     private void setNewField(){
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++){
-                contentSelectionAndSetOnField(i,j);
+                if (i==1 && i==j) continue;
+                else {
+                    contentSelectionOnField(i,j);
+                }
                 // центральный инициализируем отдельно, тк нельзя иначе обращаться к главвному герою;
             }
         }
@@ -43,8 +61,6 @@ public class Game {
 
 
     public void newGame(){
-        int generalCoins = 0;//хочу тут сохранить монетки с цикла
-
         GameWindow window = new GameWindow();
 
         window.setVisible(true);
@@ -52,26 +68,65 @@ public class Game {
         setLocationOnField(knight);
         setNewField();
         //нереально навалить перемещения клеток
-        while (!(knight.getHealth() == 0)){
-            int previousXCoordinate = knight.getLocation().x;
-            int previousYCoordinate = knight.getLocation().y;
-            window.updateKnightLocation(knight);
-            //это игровой цикл. в нем надо гонять по кругу
-            int newXCoordinate = knight.getLocation().x;
-            int newYCoordinate = knight.getLocation().y;
-            CellContents content = whatMonsterOnField(newXCoordinate, newYCoordinate);
-            if (content instanceof Enemy) {
-                knight.attackEnemy(content);
-            } if (content instanceof Coin) {
-                int coins = content.getCoins();
-                generalCoins = generalCoins + coins;
-            } if (content instanceof Weapon) {
-                generalCoins = generalCoins + knight.getWeapon();
-                knight.setWeapon(content.getHealth());
-            }
-            setLocationOnField(knight);
+        try {
+            while (!(knight.getHealth() <= 0)){
+                window.waitForKey();
+                if (window.isKeyPressed()){
+                    int previousXCoordinate = knight.getLocation().x;
+                    int previousYCoordinate = knight.getLocation().y;
+                    window.updateKnightLocation(knight);
+                    int newXCoordinate = knight.getLocation().x;
+                    int newYCoordinate = knight.getLocation().y;
 
-            //window.repaint();
+
+                    if  (newXCoordinate<0 || newYCoordinate<0 || newXCoordinate>=3 || newYCoordinate>=3)
+                        {knight.setLocation(previousXCoordinate, previousYCoordinate);}
+
+
+                    //это игровой цикл. в нем надо гонять по кругу
+                    CellContents content = whatMonsterOnField(newXCoordinate, newYCoordinate);
+                    if (content != null) {
+
+                        if (content instanceof Enemy) {
+                            if (knight.getWeapon() != 0) {
+                                int enemyHealth = content.getHealth();
+                                content.setHealth(content.getHealth() - knight.getWeapon());
+                                knight.setWeapon(knight.getWeapon()-enemyHealth);
+                                if (knight.getWeapon()<=0) knight.setWeapon(0);
+                                if (content.getHealth()<=0) {
+                                    contentSelectionOnField(previousXCoordinate, previousYCoordinate);
+                                    if (knight.getWeapon()<0)  knight.setWeapon(0);
+                                } else {
+                                    knight.setLocation(previousXCoordinate, previousYCoordinate);
+                                }
+                            } else {
+                                knight.setHealth(knight.getHealth() - content.getHealth());
+                                contentSelectionOnField(previousXCoordinate, previousYCoordinate);
+                            }
+                        }
+
+                        if (content instanceof Coin) {
+                            int coins = content.getHealth();
+                            knight.setWallet(coins);
+                            contentSelectionOnField(previousXCoordinate, previousYCoordinate);
+                        }
+
+                        if (content instanceof Weapon) {
+                            knight.setWallet(knight.getWeapon());
+                            knight.setWeapon(content.getHealth());
+                            contentSelectionOnField(previousXCoordinate, previousYCoordinate);
+                        }
+                    }
+                    setLocationOnField(knight);
+                    window.repaint();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error in game loop: " + e.getMessage());
         }
+
+
+
+
     }
 }
