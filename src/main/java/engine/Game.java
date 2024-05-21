@@ -13,18 +13,10 @@ public class Game {
         if (content.location.x >= 0 && content.location.x < sizeX &&
                 content.location.y >= 0 && content.location.y < sizeY) {
             field[content.location.x][content.location.y] = content;
-        } else {
-            System.out.println("Error: Coordinates out of bounds!");
         }
     }
     public static CellContents whatMonsterOnField(int coordinateX, int coordinateY) {
-        if (coordinateX >= 0 && coordinateX < sizeX &&
-                coordinateY >= 0 && coordinateY < sizeY) {
-            return field[coordinateX][coordinateY];
-        } else {
-            System.out.println("Error: Coordinates out of bounds!");
-            return null;
-        }
+        return field[coordinateX][coordinateY];
     }
     private void contentSelectionOnField(int xCoordinate, int yCoordinate){
         try {
@@ -79,8 +71,10 @@ public class Game {
                     int newYCoordinate = knight.getLocation().y;
 
 
-                    if  (newXCoordinate<0 || newYCoordinate<0 || newXCoordinate>=3 || newYCoordinate>=3)
-                        {knight.setLocation(previousXCoordinate, previousYCoordinate);}
+                    if  (newXCoordinate<0 || newYCoordinate<0 || newXCoordinate>=3 || newYCoordinate>=3) {
+                        knight.setLocation(previousXCoordinate, previousYCoordinate);
+                        continue;
+                    }
 
 
                     //это игровой цикл. в нем надо гонять по кругу

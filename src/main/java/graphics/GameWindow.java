@@ -75,10 +75,13 @@ public class GameWindow extends Frame implements KeyListener{
                         rectangles[row][col].width, rectangles[row][col].height);
             }
         }
+
         Color pink = new Color(92, 13, 26);
         Color grey = new Color(45, 45, 45);
+
         for (int y = 0; y<3; y++) {
             for (int x = 0; x < 3; x++) {
+
                 CellContents content = Game.whatMonsterOnField(x,y);
                 Image currentImage = currentImage(content);
                 Point point = rectangleCorners[y][x];
@@ -86,6 +89,7 @@ public class GameWindow extends Frame implements KeyListener{
                 int yCoordinate = point.y;
                 String health = String.valueOf(content.getHealth());
                 g.drawImage(currentImage, xCoordinate+30, yCoordinate+70, this);
+
                 if (content instanceof Knight){
                     String coins = String.valueOf(((Knight) content).getWallet());
                     g.drawString( coins, coinsWidth + 20, 50);
@@ -94,11 +98,11 @@ public class GameWindow extends Frame implements KeyListener{
                         g.drawImage(weaponImage, xCoordinate+30, yCoordinate+70, this);
                         g.setColor(grey);
                         String weapon = String.valueOf(((Knight) content).getWeapon());
-                        g.drawString( weapon,  xCoordinate+50, yCoordinate+100);
+                        g.drawString( weapon,  xCoordinate+70, yCoordinate+150);
                     }
                 }
                 g.setColor(pink);
-                g.drawString(health, xCoordinate+50, yCoordinate+80);
+                g.drawString(health, xCoordinate+70, yCoordinate+100);
                 g.setColor(yellow);
 
             }
@@ -141,12 +145,12 @@ public class GameWindow extends Frame implements KeyListener{
             isRight = false;
         }
         if (isUp) {
-            newY = newY+1;
+            newY = newY - 1;
             knight.setLocation(newX,newY);
             isUp = false;
         }
         if (isDown) {
-            newY = newY - 1;
+            newY = newY + 1;
             knight.setLocation(newX, newY);
             isDown = false;
         }
