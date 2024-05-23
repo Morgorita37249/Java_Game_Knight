@@ -1,7 +1,5 @@
 package content;
 
-import engine.Location;
-
 public class Knight extends CellContents {
 
     static String description = "Описание игрока. Рыцарь";

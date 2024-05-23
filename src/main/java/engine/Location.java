@@ -1,14 +1,23 @@
 package engine;
 
 public class Location{
-    public int x;
-    public int y;
+    private int x;
+    private int y;
 
-    public Location(int newx, int newy){
-       if (newx>=0 && newx<=2 && newy>=0 && newy<=2) {
-           this.x = newx;
-           this.y = newy;
-       }
+    public Location(int x, int y){
+        SetLocationX(x);
+        SetLocationY(y);
     }
-    //запрет на выход за пределы поля
+    public int GetLocationX(){
+        return x;
+    }
+    public int GetLocationY(){
+        return y;
+    }
+    public void SetLocationX(int newX){
+        x = newX;
+    }
+    public void SetLocationY(int newY){
+        y = newY;
+    }
 }

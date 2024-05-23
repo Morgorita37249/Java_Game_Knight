@@ -1,8 +1,8 @@
 package content;
-import engine.*;
+import engine.Location;
 public abstract class CellContents {
     protected int health = 1 + (int) ( Math.random() * 10 );;
-    public static String description = "Пустая клетка";
+    public static String description = "Содержимое клетки";
     public Location location = new Location(0,0);
 
 
@@ -13,8 +13,8 @@ public abstract class CellContents {
         health = newHealth;
     }
     public void setLocation(int x, int y){
-        location.x = x;
-        location.y = y;
+        location.SetLocationX(x);
+        location.SetLocationY(y);
     }
     public Location getLocation(){
         return location;

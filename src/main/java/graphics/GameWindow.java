@@ -14,8 +14,14 @@ public class GameWindow extends Frame implements KeyListener{
     private boolean isRight = false;
     private boolean isUp = false;
     private boolean isDown = false;
+    private boolean Enter = false;
 
     private boolean isKeyPressed = false;
+
+    private final Color brown = new Color(44, 16, 0);
+    private final Color pink = new Color(92, 13, 26);
+    private final Color grey = new Color(45, 45, 45);
+    private final Color yellow = new Color(224, 166, 41);
 
     public GameWindow() {
         super("GameKnight");
@@ -34,79 +40,24 @@ public class GameWindow extends Frame implements KeyListener{
         setFocusable(true);
         requestFocusInWindow();
     }
-    public Image currentImage(CellContents content){
-        if (content instanceof Coin){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/coin.png"));
-        }if (content instanceof Enemy){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
-        }if (content instanceof Knight){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
-        }if (content instanceof Weapon){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/weapon.png"));
-        }
-        return null;
-    }
+
+
 
     @Override
     public void paint(Graphics g) {
         super.paint(g);
 
         Dimension size = getSize();
-        int rectWidth = size.width / 3;
-        int rectHeight = size.height / 3;
-        Color brown = new Color(44, 16, 0);
+
         g.setColor(brown);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         g.setFont(titleFont);
         FontMetrics metrics = g.getFontMetrics();
         g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
 
-        Color yellow = new Color(143, 99, 7);
-        g.setColor(yellow);
-        int coinsWidth = metrics.stringWidth("Coins");
-        g.drawString("Coins ", 10, 50);
+        displayGameCircle(g, size);
 
-        for (int col = 0; col < 3; col++) {
-            for (int row = 0; row < 3; row++)  {
-                rectangles[row][col] = new Rectangle(col * rectWidth, row * rectHeight, rectWidth, rectHeight);
-                rectangleCorners[row][col] = new Point(rectangles[row][col].x,
-                        rectangles[row][col].y); // Угол верхнего левого угла прямоугольника
-                g.drawRect(rectangles[row][col].x, rectangles[row][col].y,
-                        rectangles[row][col].width, rectangles[row][col].height);
-            }
-        }
 
-        Color pink = new Color(92, 13, 26);
-        Color grey = new Color(45, 45, 45);
-
-        for (int y = 0; y<3; y++) {
-            for (int x = 0; x < 3; x++) {
-
-                CellContents content = Game.whatMonsterOnField(x,y);
-                Image currentImage = currentImage(content);
-                Point point = rectangleCorners[y][x];
-                int xCoordinate = point.x;
-                int yCoordinate = point.y;
-                String health = String.valueOf(content.getHealth());
-                g.drawImage(currentImage, xCoordinate+30, yCoordinate+70, this);
-
-                if (content instanceof Knight){
-                    String coins = String.valueOf(((Knight) content).getWallet());
-                    g.drawString( coins, coinsWidth + 20, 50);
-                    if (((Knight) content).getWeapon()!=0){
-                        Image weaponImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightWEAPON.png"));
-                        g.drawImage(weaponImage, xCoordinate+30, yCoordinate+70, this);
-                        g.setColor(grey);
-                        String weapon = String.valueOf(((Knight) content).getWeapon());
-                        g.drawString( weapon,  xCoordinate+70, yCoordinate+150);
-                    }
-                }
-                g.setColor(pink);
-                g.drawString(health, xCoordinate+70, yCoordinate+100);
-                g.setColor(yellow);
-
-            }
-        }
     }
 
     @Override
@@ -132,8 +83,8 @@ public class GameWindow extends Frame implements KeyListener{
     @Override
     public void keyReleased(KeyEvent e) {}
     public void updateKnightLocation(Knight knight) {
-        int newX = knight.getLocation().x;
-        int newY = knight.getLocation().y;
+        int newX = knight.getLocation().GetLocationX();
+        int newY = knight.getLocation().GetLocationY();
         if (isLeft) {
             newX = newX-1;
             knight.setLocation(newX,newY);
@@ -168,8 +119,82 @@ public class GameWindow extends Frame implements KeyListener{
         }
     }
 
+
+
     public boolean isKeyPressed(){
         return isKeyPressed;
+    }
+
+
+    private Image currentImage(CellContents content){
+        if (content instanceof Coin){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/coin.png"));
+        }if (content instanceof Enemy){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
+        }if (content instanceof Knight){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
+        }if (content instanceof Weapon){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/weapon.png"));
+        }if (content instanceof HealBottle){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/heal_bottle.png"));
+        }
+        return null;
+    }
+
+    private void displayGameCircle(Graphics g,Dimension size){
+        Image backgroundImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/background.png"));
+        g.drawImage(backgroundImage,0, 0, this);
+        int rectWidth = size.width / 3;
+        int rectHeight = size.height / 3;
+        FontMetrics metrics = g.getFontMetrics();
+        int coinsWidth = metrics.stringWidth("Coins");
+        g.setColor(yellow);
+        g.drawString("Coins ", 10, 50);
+
+        for (int col = 0; col < 3; col++) {
+            for (int row = 0; row < 3; row++)  {
+                rectangles[row][col] = new Rectangle(col * rectWidth, row * rectHeight, rectWidth, rectHeight);
+                rectangleCorners[row][col] = new Point(rectangles[row][col].x,
+                        rectangles[row][col].y); // Угол верхнего левого угла прямоугольника
+                //g.drawRect(rectangles[row][col].x, rectangles[row][col].y,
+                        //rectangles[row][col].width, rectangles[row][col].height);
+            }
+        }
+
+
+
+        for (int y = 0; y<3; y++) {
+            for (int x = 0; x < 3; x++) {
+
+                CellContents content = Game.whatMonsterOnField(x,y);
+                Image currentImage = currentImage(content);
+                Point point = rectangleCorners[y][x];
+                int xCoordinate = point.x;
+                int yCoordinate = point.y;
+                String health = String.valueOf(content.getHealth());
+                g.drawImage(currentImage, xCoordinate+30, yCoordinate+70, this);
+
+                if (content instanceof Knight){
+                    String coins = String.valueOf(((Knight) content).getWallet());
+                    g.drawString( coins, coinsWidth + 20, 50);
+                    if (((Knight) content).getWeapon()!=0){
+                        Image weaponImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightWEAPON.png"));
+                        g.drawImage(weaponImage, xCoordinate+30, yCoordinate+70, this);
+                        g.setColor(grey);
+                        String weapon = String.valueOf(((Knight) content).getWeapon());
+                        g.drawString( weapon,  xCoordinate+70, yCoordinate+150);
+                    }
+                }
+                g.setColor(pink);
+                g.drawString(health, xCoordinate+70, yCoordinate+100);
+                g.setColor(yellow);
+
+            }
+        }
+    }
+    private void displayGameOver(Graphics g){
+        Image gameOverImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/gameOVER.png"));;
+        g.drawImage(gameOverImage, 0, 0, this);
     }
 
 }
