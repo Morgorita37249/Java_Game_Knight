@@ -121,16 +121,22 @@ public class Game {
                             contentSelectionOnField(previousXCoordinate, previousYCoordinate);
                         }
                         if (content instanceof HealBottle) {
-
-                            knight.setHealth(knight.getHealth()+content.getHealth());
+                            if (knight.getHealth()<knight.getBaseHealth()) {
+                                knight.setHealth(knight.getHealth() + content.getHealth());
+                                if (knight.getHealth() > knight.getBaseHealth())
+                                    knight.setHealth( knight.getBaseHealth() );
+                            } else{
+                                knight.setWallet(content.getHealth());
+                            }
                             contentSelectionOnField(previousXCoordinate, previousYCoordinate);
                         }
                     }
                     setLocationOnField(knight);
                     window.repaint();
                 }
-
             }
+            window.gameOver();
+            window.repaint();
         } catch (Exception e) {
             System.out.println("Error in game loop: " + e.getMessage());
         }

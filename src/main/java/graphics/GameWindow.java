@@ -4,19 +4,30 @@ import content.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameWindow extends Frame implements KeyListener{
 
-    private Rectangle[][] rectangles = new Rectangle[3][3];
-    private Point[][] rectangleCorners = new Point[3][3]; // Массив углов верхних левых углов прямоугольников
+    private final Rectangle[][] rectangles = new Rectangle[3][3];
+    private final Point[][] rectangleCorners = new Point[3][3]; // Массив углов верхних левых углов прямоугольников
+    private final Image[] menuImages = new Image[]{
+            Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/menu1.png")),
+            Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/menu2.png")),
+            Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/menu3.png"))
+    };
+    private int currentImageIndex = 0;
 
     private boolean isLeft = false;
     private boolean isRight = false;
     private boolean isUp = false;
     private boolean isDown = false;
-    private boolean Enter = false;
-
     private boolean isKeyPressed = false;
+
+
+
+    private boolean gameOverFlag = false;
+    private boolean Enter = false;
 
     private final Color brown = new Color(44, 16, 0);
     private final Color pink = new Color(92, 13, 26);
@@ -39,6 +50,7 @@ public class GameWindow extends Frame implements KeyListener{
         addKeyListener(this);
         setFocusable(true);
         requestFocusInWindow();
+        startMenuImageTimer();
     }
 
 
@@ -46,24 +58,29 @@ public class GameWindow extends Frame implements KeyListener{
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-
         Dimension size = getSize();
-
-        g.setColor(brown);
+        g.setColor(yellow);
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         g.setFont(titleFont);
         FontMetrics metrics = g.getFontMetrics();
-        g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
 
-        displayGameCircle(g, size);
-
-
+        if (!Enter) {
+            if (menuImages[currentImageIndex] != null) {
+                g.drawImage(menuImages[currentImageIndex], (size.width - menuImages[currentImageIndex].getWidth(this)) / 2, 0, this);
+                g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
+                g.drawString( "Tab Enter to begin", 50, size.height - 20);
+            }
+            Enter = false;
+        } else {
+            displayGameCircle(g, size);
+            if (gameOverFlag) displayGameOver(g);
+        }
     }
+
 
     @Override
     public void keyTyped(KeyEvent e) {
     }
-
     @Override
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
@@ -76,12 +93,15 @@ public class GameWindow extends Frame implements KeyListener{
             isDown = true;
         } else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
             isRight = true;
+        }else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE){
+            Enter = true;
         }
         isKeyPressed = true;  // Убедитесь, что флаг нажатия клавиши устанавливается
     }
-
     @Override
     public void keyReleased(KeyEvent e) {}
+
+
     public void updateKnightLocation(Knight knight) {
         int newX = knight.getLocation().GetLocationX();
         int newY = knight.getLocation().GetLocationY();
@@ -107,40 +127,20 @@ public class GameWindow extends Frame implements KeyListener{
         }
         isKeyPressed = false;
     }
-
-    // указывает, что клавиша нажата
-    public void waitForKey() {
-        while (!isKeyPressed) {
-            try {
-                Thread.sleep(10); // Пауза в миллисекундах
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    private void startMenuImageTimer() {
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (isKeyPressed || Enter) {
+                    timer.cancel();
+                } else {
+                    currentImageIndex = (currentImageIndex + 1) % menuImages.length;
+                    repaint();
+                }
             }
-        }
+        }, 0, 500);
     }
-
-
-
-    public boolean isKeyPressed(){
-        return isKeyPressed;
-    }
-
-
-    private Image currentImage(CellContents content){
-        if (content instanceof Coin){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/coin.png"));
-        }if (content instanceof Enemy){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
-        }if (content instanceof Knight){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
-        }if (content instanceof Weapon){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/weapon.png"));
-        }if (content instanceof HealBottle){
-            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/heal_bottle.png"));
-        }
-        return null;
-    }
-
     private void displayGameCircle(Graphics g,Dimension size){
         Image backgroundImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/background.png"));
         g.drawImage(backgroundImage,0, 0, this);
@@ -155,13 +155,9 @@ public class GameWindow extends Frame implements KeyListener{
             for (int row = 0; row < 3; row++)  {
                 rectangles[row][col] = new Rectangle(col * rectWidth, row * rectHeight, rectWidth, rectHeight);
                 rectangleCorners[row][col] = new Point(rectangles[row][col].x,
-                        rectangles[row][col].y); // Угол верхнего левого угла прямоугольника
-                //g.drawRect(rectangles[row][col].x, rectangles[row][col].y,
-                        //rectangles[row][col].width, rectangles[row][col].height);
+                        rectangles[row][col].y);
             }
         }
-
-
 
         for (int y = 0; y<3; y++) {
             for (int x = 0; x < 3; x++) {
@@ -192,9 +188,38 @@ public class GameWindow extends Frame implements KeyListener{
             }
         }
     }
+    public boolean isKeyPressed(){
+        return isKeyPressed;
+    }
+    private Image currentImage(CellContents content){
+        if (content instanceof Coin){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/coin.png"));
+        }if (content instanceof Enemy){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/enemy.png"));
+        }if (content instanceof Knight){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightDEFAULT.png"));
+        }if (content instanceof Weapon){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/weapon.png"));
+        }if (content instanceof HealBottle){
+            return Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/heal_bottle.png"));
+        }
+        return null;
+    }
     private void displayGameOver(Graphics g){
         Image gameOverImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/gameOVER.png"));;
         g.drawImage(gameOverImage, 0, 0, this);
+    }
+    public void gameOver(){
+        gameOverFlag = true;
+    }
+    public void waitForKey() {
+        while (!isKeyPressed) {
+            try {
+                Thread.sleep(10); // Пауза в миллисекундах
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
