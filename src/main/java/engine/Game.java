@@ -115,8 +115,16 @@ public class Game {
                         }
 
                         if (content instanceof Weapon) {
-                            knight.setWallet(knight.getWeapon());
-                            knight.setWeapon(content.getHealth());
+                            if (knight.getWeapon()!=0) {
+                                if (knight.getWeapon()<content.getHealth()){
+                                    knight.setWallet(knight.getWeapon());
+                                    knight.setWeapon(content.getHealth());
+                                } else {
+                                    knight.setWallet(content.getHealth());
+                                }
+                            }else {
+                                knight.setWeapon(content.getHealth());
+                            }
                             contentSelectionOnField(previousXCoordinate, previousYCoordinate);
                         }
                         if (content instanceof HealBottle) {
