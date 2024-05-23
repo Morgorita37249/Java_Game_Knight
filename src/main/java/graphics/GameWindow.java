@@ -28,6 +28,8 @@ public class GameWindow extends Frame implements KeyListener{
 
     private boolean gameOverFlag = false;
     private boolean Enter = false;
+    private boolean pressF = false;
+    private boolean pressT = false;
 
     private final Color brown = new Color(44, 16, 0);
     private final Color pink = new Color(92, 13, 26);
@@ -44,13 +46,14 @@ public class GameWindow extends Frame implements KeyListener{
             public void windowClosing(WindowEvent e) {
                 setVisible(false);
                 dispose();
-                System.exit(0); // Добавляем завершение программы
+                System.exit(0);
             }
         });
         addKeyListener(this);
         setFocusable(true);
         requestFocusInWindow();
         startMenuImageTimer();
+        SoundPlayer.playSound("/music/soundMenu.wav", 0.2);
     }
 
 
@@ -68,7 +71,9 @@ public class GameWindow extends Frame implements KeyListener{
             if (menuImages[currentImageIndex] != null) {
                 g.drawImage(menuImages[currentImageIndex], (size.width - menuImages[currentImageIndex].getWidth(this)) / 2, 0, this);
                 g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
-                g.drawString( "Tab Enter to begin", 50, size.height - 20);
+                g.drawString( "Tab Enter to begin", (size.width - menuImages[currentImageIndex].getWidth(this)) / 2 +30,
+                        menuImages[currentImageIndex].getHeight(this) - 20);
+
             }
             Enter = false;
         } else {
@@ -95,6 +100,10 @@ public class GameWindow extends Frame implements KeyListener{
             isRight = true;
         }else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE){
             Enter = true;
+        }else if (keyCode == KeyEvent.VK_T){
+            pressT = true;
+        }else if (keyCode == KeyEvent.VK_F){
+            pressF = true;
         }
         isKeyPressed = true;  // Убедитесь, что флаг нажатия клавиши устанавливается
     }
@@ -165,24 +174,25 @@ public class GameWindow extends Frame implements KeyListener{
                 CellContents content = Game.whatMonsterOnField(x,y);
                 Image currentImage = currentImage(content);
                 Point point = rectangleCorners[y][x];
-                int xCoordinate = point.x;
-                int yCoordinate = point.y;
+                int xCoordinate = rectWidth/2- currentImage.getWidth(this)/2+point.x;
+                int yCoordinate = point.y+70;
                 String health = String.valueOf(content.getHealth());
-                g.drawImage(currentImage, xCoordinate+30, yCoordinate+70, this);
+
+                g.drawImage(currentImage,  xCoordinate, yCoordinate, this);
 
                 if (content instanceof Knight){
                     String coins = String.valueOf(((Knight) content).getWallet());
                     g.drawString( coins, coinsWidth + 20, 50);
                     if (((Knight) content).getWeapon()!=0){
                         Image weaponImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/knightWEAPON.png"));
-                        g.drawImage(weaponImage, xCoordinate+30, yCoordinate+70, this);
+                        g.drawImage(weaponImage, xCoordinate, yCoordinate, this);
                         g.setColor(grey);
                         String weapon = String.valueOf(((Knight) content).getWeapon());
-                        g.drawString( weapon,  xCoordinate+70, yCoordinate+150);
+                        g.drawString( weapon,  xCoordinate+50, yCoordinate+80);
                     }
                 }
                 g.setColor(pink);
-                g.drawString(health, xCoordinate+70, yCoordinate+100);
+                g.drawString(health, xCoordinate+40, yCoordinate+30);
                 g.setColor(yellow);
 
             }
@@ -206,12 +216,13 @@ public class GameWindow extends Frame implements KeyListener{
         return null;
     }
     private void displayGameOver(Graphics g){
-        Image gameOverImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/gameOVER.png"));;
-        g.drawImage(gameOverImage, 0, 0, this);
+        Dimension size = getSize();
+        Image gameOverImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/gameOVER.png"));
+        Image background = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/background.png"));
+        g.drawImage(background, 0, 0, this);
+        g.drawImage(gameOverImage, (size.width - gameOverImage.getWidth(this)) / 2, 0, this);
     }
-    public void gameOver(){
-        gameOverFlag = true;
-    }
+    public void gameOver(){gameOverFlag = true;}
     public void waitForKey() {
         while (!isKeyPressed) {
             try {

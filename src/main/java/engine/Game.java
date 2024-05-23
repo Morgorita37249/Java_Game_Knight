@@ -7,7 +7,7 @@ public class Game {
     private final static int sizeX = 3;
     private final static int sizeY = 3;
     //само поле игры
-    private static CellContents [][] field = new CellContents[sizeX][sizeY];
+    private static final CellContents [][] field = new CellContents[sizeX][sizeY];
 
     private void setLocationOnField(CellContents content) {
         if (content.location.GetLocationX() >= 0 && content.location.GetLocationX() < sizeX &&
@@ -34,7 +34,7 @@ public class Game {
                 Weapon weapon = new Weapon();
                 weapon.setLocation(xCoordinate, yCoordinate);
                 setLocationOnField(weapon);
-            } else if (randomNumber == 3) {
+            } else {
                 HealBottle bottle = new HealBottle();
                 bottle.setLocation(xCoordinate, yCoordinate);
                 setLocationOnField(bottle);
@@ -63,7 +63,6 @@ public class Game {
         Knight knight = new Knight();
         setLocationOnField(knight);
         setNewField();
-
 
         GameCircle(knight, window);
 
