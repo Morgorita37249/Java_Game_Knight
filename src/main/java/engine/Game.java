@@ -21,7 +21,7 @@ public class Game {
     private void contentSelectionOnField(int xCoordinate, int yCoordinate){
         try {
             Random random = new Random();
-            int randomNumber = random.nextInt(4);
+            int randomNumber = random.nextInt(5);
             if (randomNumber == 0) {
                 Enemy enemy = new Enemy();
                 enemy.setLocation(xCoordinate, yCoordinate);
@@ -34,10 +34,14 @@ public class Game {
                 Weapon weapon = new Weapon();
                 weapon.setLocation(xCoordinate, yCoordinate);
                 setLocationOnField(weapon);
-            } else {
+            } else if (randomNumber == 3){
                 HealBottle bottle = new HealBottle();
                 bottle.setLocation(xCoordinate, yCoordinate);
                 setLocationOnField(bottle);
+            } else {
+                Poison poison = new Poison();
+                poison.setLocation(xCoordinate, yCoordinate);
+                setLocationOnField(poison);
             }
         } catch (Exception e) {
             System.out.println("Error during content selection and setting: " + e.getMessage());
@@ -50,13 +54,12 @@ public class Game {
                 else {
                     contentSelectionOnField(i,j);
                 }
-                // центральный инициализируем отдельно, тк нельзя иначе обращаться к главвному герою;
             }
         }
     }
 
 
-    public void newGame(){
+    void newGame(){
         GameWindow window = new GameWindow();
 
         window.setVisible(true);
@@ -85,8 +88,6 @@ public class Game {
                         continue;
                     }
 
-
-                    //это игровой цикл. в нем надо гонять по кругу
                     CellContents content = whatMonsterOnField(newXCoordinate, newYCoordinate);
                     if (content != null) {
 
@@ -132,11 +133,19 @@ public class Game {
                                 knight.setHealth(knight.getHealth() + content.getHealth());
                                 if (knight.getHealth() > knight.getBaseHealth())
                                     knight.setHealth( knight.getBaseHealth() );
-                            } else{
-                                knight.setWallet(content.getHealth());
                             }
+                            knight.setPoisonTime(0);
                             contentSelectionOnField(previousXCoordinate, previousYCoordinate);
                         }
+                        if (content instanceof Poison) {
+                            knight.setPoisonTime(knight.getPoisonTime() + content.getHealth());
+                            contentSelectionOnField(previousXCoordinate, previousYCoordinate);
+                        }
+                    }
+                    if (knight.getPoisonTime()>0){
+                        int poisonTime = knight.getPoisonTime();
+                        knight.setPoisonTime(poisonTime -1);
+                        knight.setHealth(knight.getHealth()-1);
                     }
                     setLocationOnField(knight);
                     window.repaint();
