@@ -4,7 +4,7 @@ public class Knight extends CellContents {
 
     static String description = "Описание игрока. Рыцарь";
     private final int maxHealth = 30;
-    private int weapon;//сюда должно класться здоровье оружия
+    private int weapon;
     private int wallet = 0;
     private int poisonTime = 0;
 

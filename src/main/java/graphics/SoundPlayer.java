@@ -14,7 +14,6 @@ public class SoundPlayer {
             Clip clip = AudioSystem.getClip();
             clip.open(stream);
 
-            // Получаем управление громкостью и устанавливаем указанное значение
             FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             volumeControl.setValue((float) (20 * Math.log10(volume)));
 

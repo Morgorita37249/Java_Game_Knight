@@ -1,5 +1,4 @@
 package graphics;
-import engine.Game;
 import content.*;
 
 import java.awt.*;

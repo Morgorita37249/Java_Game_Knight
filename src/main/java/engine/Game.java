@@ -3,7 +3,6 @@ import content.*;
 import graphics.*;
 import java.util.Random;
 public class Game {
-    //движок для передвижения рыцаря по полю и действий с
     private final static int sizeX = 3;
     private final static int sizeY = 3;
     //само поле игры
