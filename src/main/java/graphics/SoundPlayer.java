@@ -4,12 +4,14 @@ import javax.sound.sampled.*;
 import java.io.InputStream;
 
 public class SoundPlayer {
-    private Clip clip;
 
     public static void playSound(String soundFilePath, double volume) {
         try {
             InputStream audioInputStream = SoundPlayer.class.getResourceAsStream(soundFilePath);
-            assert audioInputStream != null;
+            if (audioInputStream == null) {
+                System.err.println("Error: Sound file not found - " + soundFilePath);
+                return;
+            }
             AudioInputStream stream = AudioSystem.getAudioInputStream(audioInputStream);
             Clip clip = AudioSystem.getClip();
             clip.open(stream);
@@ -29,8 +31,7 @@ public class SoundPlayer {
 
             clip.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error playing sound: " + e.getMessage());
         }
     }
-
 }

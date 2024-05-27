@@ -7,15 +7,23 @@ public class Game {
     private final static int sizeY = 3;
     //само поле игры
     private static final CellContents [][] field = new CellContents[sizeX][sizeY];
+    private final GameWindow window;
 
     private void setLocationOnField(CellContents content) {
         if (content.location.GetLocationX() >= 0 && content.location.GetLocationX() < sizeX &&
                 content.location.GetLocationY() >= 0 && content.location.GetLocationY() < sizeY) {
             field[content.location.GetLocationX()][content.location.GetLocationY()] = content;
+        } else {
+            System.err.println("Error: Invalid location for content.");
         }
     }
     public static CellContents whatMonsterOnField(int coordinateX, int coordinateY) {
-        return field[coordinateX][coordinateY];
+        try {
+            return field[coordinateX][coordinateY];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.err.println("Error: Coordinates out of bounds - " + e.getMessage());
+            return null;
+        }
     }
     private void contentSelectionOnField(int xCoordinate, int yCoordinate){
         try {
@@ -57,17 +65,37 @@ public class Game {
         }
     }
 
+    Game() {
+        window = new GameWindow();
+    }
 
-    void newGame(){
-        GameWindow window = new GameWindow();
-
-        window.setVisible(true);
+    public void startGame() {
         Knight knight = new Knight();
         setLocationOnField(knight);
         setNewField();
-
         GameCircle(knight, window);
+    }
 
+
+    void newGame(){
+        try {
+            window.setVisible(true);
+            while (!window.getGameOverFlag()) {
+                startGame();
+                window.setGameOverFlag(true);
+                window.waitForKey();
+                if (window.tryAgain()) {
+                    window.setGameOverFlag(false);
+                }
+                if (window.exit()) {
+                    window.dispose();
+                    System.exit(0);
+                }
+                window.repaint();
+            }
+        } catch (Exception e) {
+            System.err.println("Error in new game loop: " + e.getMessage());
+        }
     }
 
     private void GameCircle(Knight knight, GameWindow window){
@@ -83,6 +111,7 @@ public class Game {
 
 
                     if (newXCoordinate < 0 || newYCoordinate < 0 || newXCoordinate >= 3 || newYCoordinate >= 3) {
+                        window.setBanBorder(newXCoordinate, newYCoordinate);
                         knight.setLocation(previousXCoordinate, previousYCoordinate);
                         continue;
                     }
@@ -147,14 +176,14 @@ public class Game {
                         knight.setHealth(knight.getHealth()-1);
                     }
                     setLocationOnField(knight);
-                    window.repaint();
+
                 }
             }
-            window.gameOver();
-            window.repaint();
+
         } catch (Exception e) {
             System.out.println("Error in game loop: " + e.getMessage());
         }
     }
+
 }
 

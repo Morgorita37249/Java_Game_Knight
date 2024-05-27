@@ -8,9 +8,11 @@ import java.awt.event.*;
 public class GameWindow extends Frame{
 
     private boolean gameOverFlag = false;
+
     private final GameDisplay gameDisplay = new GameDisplay();
     private final KeyHandler keyHandler = new KeyHandler();
     private final MenuDisplay menuDisplay = new MenuDisplay();
+    private final MouseHandler mouseHandler = new MouseHandler();
 
     public GameWindow() {
         super("GameKnight");
@@ -26,6 +28,8 @@ public class GameWindow extends Frame{
             }
         });
 
+        addMouseMotionListener(mouseHandler);
+        addMouseListener(mouseHandler);
         addKeyListener(keyHandler);
         setFocusable(true);
         requestFocusInWindow();
@@ -34,18 +38,17 @@ public class GameWindow extends Frame{
     }
 
 
-
     @Override
     public void paint(Graphics g) {
-        Color yellow = new Color(224, 166, 41);
         super.paint(g);
         Dimension size = getSize();
-        g.setColor(yellow);
+        g.setColor(GameWindowTools.getYellow());
         Font titleFont = new Font("Arial", Font.BOLD, 24);
         g.setFont(titleFont);
         FontMetrics metrics = g.getFontMetrics();
 
-        if (!keyHandler.getIsEnter()) {
+
+        if (!keyHandler.getMenuEnter()) {
             if (menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()) != null) {
                 g.drawImage(menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()),
                         (size.width - menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getWidth(this)) / 2, 0, this);
@@ -54,10 +57,12 @@ public class GameWindow extends Frame{
                         menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getHeight(this) - 20);
 
             }
-            keyHandler.setIsEnter(false);
+            keyHandler.setMenuEnter(false);
         } else {
-            gameDisplay.displayGameCircle(g, size,this);
-            if (gameOverFlag) gameDisplay.displayGameOver(g,size,this);
+            gameDisplay.displayGameCircle(g, size, this);
+            if (gameOverFlag) {
+                gameDisplay.displayGameOver(g, size, this);
+            }
         }
     }
 
@@ -89,19 +94,36 @@ public class GameWindow extends Frame{
     }
 
 
-    public void gameOver(){gameOverFlag = true;}
+    public void setGameOverFlag(boolean flag){
+        gameOverFlag = flag;
+    }
     public void waitForKey() {
         while (!isKeyPressed()) {
             try {
-                Thread.sleep(10); // Пауза в миллисекундах
+                Thread.sleep(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("InterruptedException caught: " + e.getMessage());
             }
         }
     }
 
     public boolean isKeyPressed() {
         return KeyHandler.getIsKeyPressed();
+    }
+
+    public boolean getGameOverFlag() {
+        return gameOverFlag;
+    }
+
+    public boolean tryAgain() {
+        return keyHandler.getIsT();
+    }
+    public boolean exit(){
+        return keyHandler.getIsF();
+    }
+
+    public void setBanBorder(int newXCoordinate, int newYCoordinate) {
+        gameDisplay.setBanBorder(newXCoordinate,newYCoordinate);
     }
 }
 

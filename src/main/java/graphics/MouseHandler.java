@@ -1,40 +1,44 @@
 package graphics;
 
 import java.awt.event.*;
-
+import java.awt.*;
 public class MouseHandler implements MouseListener, MouseMotionListener {
+
+    private final boolean[][] mouseClickedRectangle = new boolean[3][3];
     @Override
     public void mouseClicked(MouseEvent e) {
         System.out.println("Mouse Clicked at: " + e.getX() + ", " + e.getY());
-    }
+        Point point = e.getPoint();
+        for (int col = 0; col < 3; col++) {
+            for (int row = 0; row < 3; row++) {
+                if (GameDisplay.getRectangle(row,col).contains(point)){
+                    mouseClickedRectangle[row][col] = true;
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-        System.out.println("Mouse Pressed at: " + e.getX() + ", " + e.getY());
+                }
+            }
+        }
+        KeyHandler.setIsKeyPressed(true);
     }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        System.out.println("Mouse Released at: " + e.getX() + ", " + e.getY());
+    boolean getMouseClickedRectangle(int row,int col){
+        return mouseClickedRectangle[row][col];
     }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        System.out.println("Mouse Entered at: " + e.getX() + ", " + e.getY());
+    void setMouseClickedRectangle(){
+        for (int col = 0; col < 3; col++) {
+            for (int row = 0; row < 3; row++) {
+                mouseClickedRectangle[row][col] = false;
+            }
+        }
     }
-
     @Override
-    public void mouseExited(MouseEvent e) {
-        System.out.println("Mouse Exited at: " + e.getX() + ", " + e.getY());
-    }
-
+    public void mousePressed(MouseEvent e) {}
     @Override
-    public void mouseDragged(MouseEvent e) {
-        System.out.println("Mouse Dragged at: " + e.getX() + ", " + e.getY());
-    }
-
+    public void mouseReleased(MouseEvent e) {}
     @Override
-    public void mouseMoved(MouseEvent e) {
-        System.out.println("Mouse Moved at: " + e.getX() + ", " + e.getY());
-    }
+    public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseExited(MouseEvent e) {}
+    @Override
+    public void mouseDragged(MouseEvent e) {}
+    @Override
+    public void mouseMoved(MouseEvent e) {}
 }
