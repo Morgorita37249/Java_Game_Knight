@@ -1,18 +1,17 @@
 package graphics;
 import content.*;
+import engine.Game;
 
 import java.awt.*;
 import java.awt.event.*;
 
-
 public class GameWindow extends Frame{
-
+    private final int gainedMoney = 0;
     private boolean gameOverFlag = false;
-
     private final GameDisplay gameDisplay = new GameDisplay();
     private final KeyHandler keyHandler = new KeyHandler();
     private final MenuDisplay menuDisplay = new MenuDisplay();
-    private final MouseHandler mouseHandler = new MouseHandler();
+    private final MouseHandler mouseHandler = new MouseHandler(keyHandler);
 
     public GameWindow() {
         super("GameKnight");
@@ -33,10 +32,11 @@ public class GameWindow extends Frame{
         addKeyListener(keyHandler);
         setFocusable(true);
         requestFocusInWindow();
-        menuDisplay.startMenuImageTimer(this);
-        SoundPlayer.playSound("/music/soundMenu.wav", 0.2);
-    }
 
+
+        SoundPlayer.playSound("/music/soundMenu.wav", 0.2);
+
+    }
 
     @Override
     public void paint(Graphics g) {
@@ -52,12 +52,13 @@ public class GameWindow extends Frame{
             if (menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()) != null) {
                 g.drawImage(menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()),
                         (size.width - menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getWidth(this)) / 2, 0, this);
-                g.drawString( "Game Knight", (size.width - metrics.stringWidth("Game Knight"))/2, 50);
-                g.drawString( "Tab Enter to begin", (size.width - menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getWidth(this)) / 2 +30,
+                g.drawString("Game Knight", (size.width - metrics.stringWidth("Game Knight")) / 2, 50);
+                g.drawString("Tab Enter to begin", (size.width - menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getWidth(this)) / 2 + 30,
                         menuDisplay.getMenuImage(menuDisplay.getCurrentImageIndex()).getHeight(this) - 20);
-
+                if (Game.getGainedMoney()!=0)
+                    g.drawString("Gained money: " + Game.getGainedMoney(), 50, 50);
             }
-            keyHandler.setMenuEnter(false);
+            keyHandler.setMenuEnter();
         } else {
             gameDisplay.displayGameCircle(g, size, this);
             if (gameOverFlag) {
@@ -73,42 +74,48 @@ public class GameWindow extends Frame{
         if (keyHandler.getIsLeft()) {
             newX = newX-1;
             knight.setLocation(newX,newY);
-            keyHandler.setIsLeft(false);
+            keyHandler.setIsLeft();
         }
         if (keyHandler.getIsRight()) {
             newX = newX+1;
             knight.setLocation(newX,newY);
-            keyHandler.setIsRight(false);
+            keyHandler.setIsRight();
         }
         if (keyHandler.getIsUp()) {
             newY = newY - 1;
             knight.setLocation(newX,newY);
-            keyHandler.setIsUp(false);
+            keyHandler.setIsUp();
         }
         if (keyHandler.getIsDown()) {
             newY = newY + 1;
             knight.setLocation(newX, newY);
-            keyHandler.setIsDown(false);
+            keyHandler.setIsDown();
         }
-        KeyHandler.setIsKeyPressed(false);
+        if (mouseHandler.getMouseClick()){
+            Point rectangle = mouseHandler.getMouseClickedRectangle();
+            int Y = rectangle.y;
+            int X = rectangle.x;
+            if (checkMouseClickedRectangle(rectangle, newX, newY)){
+                knight.setLocation(X,Y);
+            }
+        }
+        keyHandler.setIsKeyPressed(false);
     }
-
+    private boolean checkMouseClickedRectangle(Point rectangle,int x,int y){
+        int newY = rectangle.y;
+        int newX = rectangle.x;
+        return x == (newX + 1) && y == newY
+                || x == (newX - 1) && y == newY
+                || y == (newY + 1) && x == newX
+                || y == (newY - 1) && x == newX;
+    }
 
     public void setGameOverFlag(boolean flag){
         gameOverFlag = flag;
     }
-    public void waitForKey() {
-        while (!isKeyPressed()) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                System.err.println("InterruptedException caught: " + e.getMessage());
-            }
-        }
-    }
 
     public boolean isKeyPressed() {
-        return KeyHandler.getIsKeyPressed();
+        return keyHandler.getIsKeyPressed();
     }
 
     public boolean getGameOverFlag() {
@@ -118,6 +125,9 @@ public class GameWindow extends Frame{
     public boolean tryAgain() {
         return keyHandler.getIsT();
     }
+    public void setTryAgain() {
+        keyHandler.setIsT();
+    }
     public boolean exit(){
         return keyHandler.getIsF();
     }
@@ -125,5 +135,10 @@ public class GameWindow extends Frame{
     public void setBanBorder(int newXCoordinate, int newYCoordinate) {
         gameDisplay.setBanBorder(newXCoordinate,newYCoordinate);
     }
+    public void setMenuWindow(){
+        menuDisplay.startMenuImage(this);
+        keyHandler.setMenuEnter();
+    }
+
 }
 

@@ -2,43 +2,46 @@ package graphics;
 
 import java.awt.event.*;
 import java.awt.*;
-public class MouseHandler implements MouseListener, MouseMotionListener {
+
+public class MouseHandler extends MouseAdapter {
 
     private final boolean[][] mouseClickedRectangle = new boolean[3][3];
+    private final KeyHandler keyHandler;
+    private boolean mouseClick = false;
+    public MouseHandler(KeyHandler keyHandler) {
+        this.keyHandler = keyHandler;
+    }
     @Override
     public void mouseClicked(MouseEvent e) {
         System.out.println("Mouse Clicked at: " + e.getX() + ", " + e.getY());
         Point point = e.getPoint();
         for (int col = 0; col < 3; col++) {
             for (int row = 0; row < 3; row++) {
-                if (GameDisplay.getRectangle(row,col).contains(point)){
-                    mouseClickedRectangle[row][col] = true;
-
+                if (GameDisplay.getRectangle(col, row).contains(point)) {
+                    mouseClickedRectangle[col][row] = true;
+                    keyHandler.setIsKeyPressed(true);
+                    mouseClick = true;
                 }
             }
         }
-        KeyHandler.setIsKeyPressed(true);
     }
-    boolean getMouseClickedRectangle(int row,int col){
-        return mouseClickedRectangle[row][col];
-    }
-    void setMouseClickedRectangle(){
-        for (int col = 0; col < 3; col++) {
-            for (int row = 0; row < 3; row++) {
-                mouseClickedRectangle[row][col] = false;
+
+    Point getMouseClickedRectangle() {
+        for (int row = 0; row < 3; row++) {
+            for  (int col = 0; col < 3; col++){
+                if (mouseClickedRectangle[col][row]) {
+                    resetMouseClickedRectangle(col, row);
+                    mouseClick = false;
+                    return new Point( row,col);
+                }
             }
         }
+        return null;
     }
-    @Override
-    public void mousePressed(MouseEvent e) {}
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-    @Override
-    public void mouseExited(MouseEvent e) {}
-    @Override
-    public void mouseDragged(MouseEvent e) {}
-    @Override
-    public void mouseMoved(MouseEvent e) {}
+    boolean getMouseClick(){
+        return mouseClick;
+    }
+    void resetMouseClickedRectangle(int row, int col) {
+        mouseClickedRectangle[row][col] = false;
+    }
 }

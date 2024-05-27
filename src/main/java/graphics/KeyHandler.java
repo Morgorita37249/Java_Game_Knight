@@ -2,8 +2,8 @@ package graphics;
 
 import java.awt.event.*;
 
-public class KeyHandler implements KeyListener {
-    private static boolean isKeyPressed = false;
+public class KeyHandler extends KeyAdapter {
+    private boolean isKeyPressed = false;
     private boolean isLeft = false;
     private boolean isRight = false;
     private boolean isUp = false;
@@ -14,14 +14,6 @@ public class KeyHandler implements KeyListener {
 
     private boolean menuEnter = false;
 
-    boolean getIsT() {
-        return isT;
-    }
-    boolean getIsF() {
-        return isF;
-    }
-    @Override
-    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -45,26 +37,33 @@ public class KeyHandler implements KeyListener {
         isKeyPressed = true;
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {}
 
-    public boolean getIsLeft() {return isLeft;}
-    public void setIsLeft(boolean keyLeft) {isLeft = keyLeft;}
+    boolean getIsLeft() {return isLeft;}
+    void setIsLeft() {isLeft = false;}
 
-    public boolean getIsRight() {return isRight;}
-    public void setIsRight(boolean keyRight) {isRight = keyRight;}
+    boolean getIsRight() {return isRight;}
+    void setIsRight() {isRight = false;}
 
-    public boolean getIsUp() {return isUp;}
-    public void setIsUp(boolean keyUp){isUp = keyUp;}
+    boolean getIsUp() {return isUp;}
+    void setIsUp(){isUp = false;}
 
-    public boolean getIsDown() {return isDown;}
-    public void setIsDown(boolean keyDown){isDown = keyDown;}
+    boolean getIsDown() {return isDown;}
+    void setIsDown(){isDown = false;}
 
-    public boolean getMenuEnter() {return menuEnter;}
-    public void setMenuEnter(boolean isEnter) {menuEnter = isEnter;}
+    boolean getMenuEnter() {return menuEnter;}
+    void setMenuEnter() {menuEnter = false;}
 
-    public static void setIsKeyPressed(boolean keyPressed){isKeyPressed = keyPressed;}
-    public static boolean getIsKeyPressed() {return isKeyPressed;}
+    void setIsKeyPressed(boolean keyPressed){isKeyPressed = keyPressed;}
+    boolean getIsKeyPressed() {return isKeyPressed;}
 
+    boolean getIsT() {
+        return isT;
+    }
+    void setIsT() {
+        isT = false;
+    }
+    boolean getIsF() {
+        return isF;
+    }
 
 }

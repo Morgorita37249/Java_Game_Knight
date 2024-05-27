@@ -7,7 +7,8 @@ import java.awt.*;
 
 public class GameDisplay {
     private static final Rectangle[][] rectangles = new Rectangle[3][3];
-    private Image banBorder;
+    private boolean banBorderFlag = false;
+    private Image banBorderImage;
 
     void displayGameCircle(Graphics g, Dimension size, GameWindow gameWindow) {
         Image backgroundImage = Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/background.png"));
@@ -56,10 +57,10 @@ public class GameDisplay {
                         String poison = String.valueOf(((Knight) content).getPoisonTime());
                         g.drawString(poison, xCoordinate + 160, yCoordinate + 40);
                     }
-                    if (banBorder != null) {
-                        g.drawImage(banBorder, xCoordinate, yCoordinate, gameWindow);
+                    if (banBorderFlag) {
+                        g.drawImage(banBorderImage, xCoordinate, yCoordinate, gameWindow);
+                        banBorderFlag = false;
                     }
-                    banBorder = null;
                 }
                 g.setColor(GameWindowTools.getPink());
                 g.drawString(health, xCoordinate + 40, yCoordinate + 30);
@@ -92,7 +93,8 @@ public class GameDisplay {
     }
 
     public void setBanBorder(int newXCoordinate, int newYCoordinate) {
-        banBorder = banBorders(newXCoordinate, newYCoordinate);
+        banBorderImage = banBorders(newXCoordinate, newYCoordinate);
+        banBorderFlag = true;
     }
 
     private Image banBorders(int x, int y) {
