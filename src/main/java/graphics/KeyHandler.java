@@ -21,12 +21,16 @@ public class KeyHandler extends KeyAdapter {
         System.out.println("Key pressed: " + KeyEvent.getKeyText(keyCode));  // Вывод в консоль
         if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_UP) {
             isUp = true;
+            if (isKeyPressed) resetKeys();
         } else if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_LEFT) {
             isLeft = true;
+            if (isKeyPressed) resetKeys();
         } else if (keyCode == KeyEvent.VK_S || keyCode == KeyEvent.VK_DOWN) {
             isDown = true;
+            if (isKeyPressed) resetKeys();
         } else if (keyCode == KeyEvent.VK_D || keyCode == KeyEvent.VK_RIGHT) {
             isRight = true;
+            if (isKeyPressed) resetKeys();
         } else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE){
             menuEnter = true;
         } else if (keyCode == KeyEvent.VK_F){
@@ -36,7 +40,12 @@ public class KeyHandler extends KeyAdapter {
         }
         isKeyPressed = true;
     }
-
+    private void resetKeys(){
+        isLeft = false;
+        isUp = false;
+        isDown = false;
+        isRight = false;
+    }
 
     boolean getIsLeft() {return isLeft;}
     void setIsLeft() {isLeft = false;}

@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GameWindow extends Frame{
-    private final int gainedMoney = 0;
     private boolean gameOverFlag = false;
     private final GameDisplay gameDisplay = new GameDisplay();
     private final KeyHandler keyHandler = new KeyHandler();
@@ -100,6 +99,12 @@ public class GameWindow extends Frame{
             }
         }
         keyHandler.setIsKeyPressed(false);
+    }
+    private boolean checkClickedRectangle(int newX,int newY,int x,int y){
+        return x == (newX + 1) && y == newY
+                || x == (newX - 1) && y == newY
+                || y == (newY + 1) && x == newX
+                || y == (newY - 1) && x == newX;
     }
     private boolean checkMouseClickedRectangle(Point rectangle,int x,int y){
         int newY = rectangle.y;
