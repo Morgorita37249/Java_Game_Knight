@@ -14,7 +14,6 @@ public class MenuDisplay {
             Toolkit.getDefaultToolkit().getImage(GameWindow.class.getResource("/images/menu3.png"))
     };
 
-
     public void startMenuImage(GameWindow g) {
         if (timer != null) {
             timer.cancel();
